@@ -433,85 +433,6 @@ El `AuthProvider` envuelve toda la aplicación en `src/main.jsx`, haciendo que l
 
 ---
 
-## Peticiones HTTP con Axios
-
-### Definición
-
-Axios es una biblioteca de JavaScript basada en Promesas para realizar peticiones HTTP tanto desde el navegador como desde Node.js. Está construida sobre la API `XMLHttpRequest` del navegador y proporciona una interfaz más limpia y completa que la API nativa `fetch` (Axios, 2023). Su amplia adopción en el ecosistema de React se debe a características como la intercepción de peticiones y respuestas, la transformación automática de datos JSON, la cancelación de peticiones y el manejo centralizado de errores.
-
-### Funcionalidad
-
-Axios permite realizar los métodos HTTP estándar (`get`, `post`, `put`, `patch`, `delete`) de forma sencilla. Soporta la configuración de instancias con una URL base y cabeceras predeterminadas, lo que facilita la integración con APIs RESTful que requieren autenticación mediante tokens.
-
-### Ejemplo
-
-A continuación se presenta un ejemplo de cómo se integraría Axios en una aplicación que consumiera una API REST externa para gestionar hallazgos. Aunque SafeCheck utiliza directamente el SDK de Firebase (que abstrae la comunicación HTTP), el patrón sería equivalente si se conectara a una API RESTful:
-
-```jsx
-// Instalación: npm install axios
-
-import axios from "axios";
-
-// Instancia configurada con la URL base y token de autenticación
-const api = axios.create({
-  baseURL: "https://api.safecheck.com/v1",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Interceptor para agregar el token en cada petición
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-// Función para obtener todos los hallazgos
-export async function getHallazgos() {
-  const { data } = await api.get("/hallazgos");
-  return data;
-}
-
-// Función para crear un nuevo hallazgo
-export async function crearHallazgo(hallazgo) {
-  const { data } = await api.post("/hallazgos", hallazgo);
-  return data;
-}
-
-// Función para actualizar el estado de un hallazgo
-export async function actualizarEstado(id, nuevoEstado) {
-  const { data } = await api.patch(`/hallazgos/${id}`, { estado: nuevoEstado });
-  return data;
-}
-
-// Uso dentro de un componente React con useEffect
-import { useState, useEffect } from "react";
-
-export default function ListaHallazgos() {
-  const [hallazgos, setHallazgos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getHallazgos()
-      .then(setHallazgos)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p>Cargando...</p>;
-  return (
-    <ul>
-      {hallazgos.map((h) => (
-        <li key={h.id}>{h.titulo} — {h.estado}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
----
-
 ## Rutas y Navegación
 
 ### Definición
@@ -1164,8 +1085,6 @@ export default function HallazgosList() {
 ## Referencias
 
 Abramov, D., & Clark, P. (2015). *React: Rethinking best practices*. Facebook Engineering Blog.
-
-Axios. (2023). *Axios documentation*. https://axios-http.com/docs/intro
 
 Fielding, R. T. (2000). *Architectural styles and the design of network-based software architectures* [Tesis doctoral, University of California, Irvine]. https://ics.uci.edu/~fielding/pubs/dissertation/top.htm
 
